@@ -1,0 +1,81 @@
+{% extends 'notes/base.html' %}
+{% load static %}
+
+{% block title %}Add Note{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-plus-circle me-2"></i>Add Note
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label" for="id_title">Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="text-danger" style="font-size:0.85rem; margin-top:4px;">{{ form.title.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="id_content">Content</label>
+                        {{ form.content }}
+                        {% if form.content.errors %}
+                        <div class="text-danger" style="font-size:0.85rem; margin-top:4px;">{{ form.content.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tags</label>
+                        {% if form.tags.field.choices %}
+                        <div class="row g-2" style="max-height: 200px; overflow-y: auto; padding: 8px; border: 1px solid var(--border-color); border-radius: 8px;">
+                            {% for tag in form.tags %}
+                            <div class="col-6 col-md-4">
+                                <div class="form-check">
+                                    {{ tag.tag }}
+                                    <label class="form-check-label" for="{{ tag.id_for_label }}">
+                                        {{ tag.choice_label }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted mb-0" style="font-size:0.9rem;">
+                            No tags yet. <a href="{% url 'add_tag' %}">Create one</a> first.
+                        </p>
+                        {% endif %}
+                        {% if form.tags.errors %}
+                        <div class="text-danger" style="font-size:0.85rem; margin-top:4px;">{{ form.tags.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            {{ form.is_pinned }}
+                            <label class="form-check-label" for="id_is_pinned">
+                                <i class="bi bi-pin-angle me-1"></i>Pin this note
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i> Save Note
+                        </button>
+                        <a href="{% url 'note_list' %}" class="btn btn-outline-secondary" 
+                           style="color: var(--text-secondary); border-color: var(--border-color);">
+                            <i class="bi bi-x-lg me-1"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

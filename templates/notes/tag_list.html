@@ -1,0 +1,43 @@
+{% extends 'notes/base.html' %}
+{% load static %}
+
+{% block title %}Tags{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h4><i class="bi bi-tags me-2"></i>Tags</h4>
+    <a href="{% url 'add_tag' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> <span class="d-none d-sm-inline">Add Tag</span>
+    </a>
+</div>
+
+{% if tags %}
+<div class="d-flex flex-wrap gap-3">
+    {% for tag in tags %}
+    <div class="tag-chip">
+        <i class="bi bi-tag" style="color: var(--primary);"></i>
+        <span style="font-weight:500;">{{ tag.name }}</span>
+        <span class="tag-count">{{ tag.note_set.count }}</span>
+        <div class="tag-actions">
+            <a href="{% url 'edit_tag' tag.id %}" class="btn btn-sm btn-outline-primary" title="Edit tag">
+                <i class="bi bi-pencil"></i>
+            </a>
+            <a href="{% url 'delete_tag' tag.id %}" class="btn btn-sm btn-outline-danger" title="Delete tag">
+                <i class="bi bi-trash"></i>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<!-- Empty State -->
+<div class="empty-state">
+    <i class="bi bi-tag"></i>
+    <h5>No tags yet</h5>
+    <p class="mb-3">Create tags to organize your notes better.</p>
+    <a href="{% url 'add_tag' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Create Tag
+    </a>
+</div>
+{% endif %}
+{% endblock %}

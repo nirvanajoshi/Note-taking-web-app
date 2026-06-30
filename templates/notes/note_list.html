@@ -1,0 +1,123 @@
+{% extends 'notes/base.html' %}
+{% load static %}
+
+{% block title %}My Notes{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h4><i class="bi bi-file-text me-2"></i>My Notes</h4>
+    <a href="{% url 'add_note' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> <span class="d-none d-sm-inline">Add Note</span>
+    </a>
+</div>
+
+<!-- Search & Filter -->
+<div class="row g-3 mb-4">
+    <div class="col-md-8">
+        <form method="GET" id="searchForm" class="search-box">
+            {% if request.GET.tag %}
+            <input type="hidden" name="tag" value="{{ request.GET.tag }}">
+            {% endif %}
+            <i class="bi bi-search"></i>
+            <input type="text" name="search" class="form-control" placeholder="Search notes..."
+                   value="{{ request.GET.search|default:'' }}" id="searchInput">
+        </form>
+    </div>
+    <div class="col-md-4">
+        <form method="GET" id="tagFilterForm">
+            {% if request.GET.search %}
+            <input type="hidden" name="search" value="{{ request.GET.search }}">
+            {% endif %}
+            <select name="tag" class="form-select" onchange="this.form.submit()">
+                <option value="">All Tags</option>
+                {% for tag in tags %}
+                <option value="{{ tag.id }}" {% if request.GET.tag|stringformat:"s" == tag.id|stringformat:"s" %}selected{% endif %}>
+                    {{ tag.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+</div>
+
+<!-- Notes Grid -->
+{% if notes %}
+<div class="row g-4">
+    {% for note in notes %}
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="note-card {% if note.is_pinned %}pinned{% endif %}">
+            {% if note.is_pinned %}
+            <div class="d-flex align-items-center gap-1 mb-2">
+                <i class="bi bi-pin-fill pin-icon" style="font-size:0.85rem;"></i>
+                <span style="font-size:0.75rem; color: var(--warning); font-weight:500;">Pinned</span>
+            </div>
+            {% endif %}
+            <h5 class="note-title">{{ note.title }}</h5>
+            <div class="note-content mb-2">
+                {{ note.content|truncatewords:15 }}
+            </div>
+
+            {% if note.tags.all %}
+            <div class="mb-2 d-flex flex-wrap gap-1">
+                {% for tag in note.tags.all %}
+                <span class="tag-badge">{{ tag.name }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="note-meta mb-2">
+                <i class="bi bi-clock me-1"></i>{{ note.updated_at|date:"M d, Y" }}
+            </div>
+
+            <div class="note-actions">
+                <a href="{% url 'toggle_pin' note.id %}" class="btn btn-sm {% if note.is_pinned %}btn-warning{% else %}btn-outline-primary{% endif %}"
+                   title="{% if note.is_pinned %}Unpin{% else %}Pin{% endif %}">
+                    <i class="bi bi-pin{% if not note.is_pinned %}-angle{% endif %}"></i>
+                </a>
+                <a href="{% url 'edit_note' note.id %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                <a href="{% url 'delete_note' note.id %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<!-- Empty State -->
+<div class="empty-state">
+    {% if request.GET.search or request.GET.tag %}
+    <i class="bi bi-search"></i>
+    <h5>No notes found</h5>
+    <p class="mb-3">No notes match your search criteria. Try different keywords or clear filters.</p>
+    <a href="{% url 'note_list' %}" class="btn btn-outline-primary">
+        <i class="bi bi-x-lg me-1"></i> Clear Filters
+    </a>
+    {% else %}
+    <i class="bi bi-journal-plus"></i>
+    <h5>No notes yet</h5>
+    <p class="mb-3">Your note-taking journey starts here. Create your first note!</p>
+    <a href="{% url 'add_note' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Create Note
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Floating Add Button (mobile) -->
+<a href="{% url 'add_note' %}" class="floating-btn d-sm-none" title="Add Note">
+    <i class="bi bi-plus-lg"></i>
+</a>
+
+<script>
+    // Auto-submit search on Enter
+    document.getElementById('searchInput')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('searchForm').submit();
+        }
+    });
+</script>
+{% endblock %}
